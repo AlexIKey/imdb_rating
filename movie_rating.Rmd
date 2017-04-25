@@ -1,0 +1,72 @@
+---
+title: "IMDB датасет"
+output: html_notebook
+---
+
+Скоріш за все, якщо ми поставимо за мету, знайти людину, яка б не любила кіно, то зазнаємо поразки. Кіно, так чи інакше, люблять всі. Хтось фантастику чи драму, хтось фільми жахів чи детективи, можливо, документальне чи науково-популярне, але загалом кіно займає значну долю нашого культурного життя.
+
+В інтернеті можна знайти так звані сайти-рейтинги для художніх фільмів (а також мультфільмів, серіалів, документальних стріок тощо), самий популярний та відомий з яких [IMDB](http://imdb.com).
+
+Із менш популярних можна назвати:
+[Rotten Tomatoes](http://www.rottentomatoes.com/)
+[Movies.com](http://www.movies.com/)
+[Movies.yahoo](https://www.yahoo.com/movies/)
+[Allmovie](http://www.allmovie.com/)
+[КиноПоиск](https://www.kinopoisk.ru/)
+
+На такого роду сайтах ми можемо знайти багато цікавої інформації про фільм, починаючи від короткого змісту сюжету до фінансового успіху стрічки. Але якщо ми візьмемо дані про сотні чи навіть тисячі фільмів, чи зможемо ми виявити та узагальнити основні тенденціі кіноіндустрії? Давайте спробуємо.
+
+
+Перш за все нам будуть потрібні дані, з якими ми будемо працювати. На жаль, сайт [IMDB](http://imdb.com) не дає змоги отримати дані про всі фільми у вигляді якої-небудь таблиці, з якою вже було б зручно працювати. Тому дослідники вимушені використовувати різні програмні трюки, щоб зібрати дані та переформатувати їх у зручний для аналізу вигляд.
+
+На щастя, я не перший, кого зацікавило дане питання, тому я можу використати готовий до вжитку, найбільш популярний щодо кіноіндустрії датасет [IMDB 5000 Movie Dataset](https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset), остання версія якого датується 14 серпня 2016 року. Тобто останні фільми за півроку туда не війдуть, але на загальні тенденції це практично не вплине.
+
+Отже, почнемо.
+
+
+```{r}
+#load libraries
+library(dplyr)
+library(ggplot2) # visualization
+library(ggthemes) # visualization
+library(scales) # visualization
+library(data.table)
+library(stringr)
+
+```
+
+Прочитаємо датасет та подивимось на його структуру
+```{r}
+movies = read.csv("movie_metadata.csv",stringsAsFactors = F,encoding = "UTF-8")
+str(movies)
+
+
+```
+
+```{r}
+duplicated(movies)
+unique(movies,by="movie_imdb_link")
+dup<-movies[duplicated(movies,by="movie_imdb_link"), ]
+
+```
+
+
+```{r}
+temp <- movies %>% select(movie_title,imdb_score)%>% arrange(desc(imdb_score))
+
+
+temp <- temp[1:20,]
+
+# Add title, narrower bars, fill color, and change axis labels
+#Bar Chart with 2 variables
+ggplot(temp, aes(x = reorder(movie_title,imdb_score), 
+    y = imdb_score, fill = imdb_score)) +
+  geom_bar(stat='identity') + 
+  geom_text(aes(x = movie_title, y = 0.5, label=imdb_score),
+    hjust=0, vjust=0.55, size = 4, colour = 'red') +
+  labs(x = 'movie_title') +
+  coord_flip() + 
+  theme_few()
+
+```
+
