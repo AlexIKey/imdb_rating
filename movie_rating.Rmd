@@ -1,8 +1,12 @@
 ---
 title: "IMDB датасет"
-output: html_notebook
+output: 
+  html_notebook: 
+    fig_height: 6
+    fig_width: 9
 ---
 
+![](figures/img.png)
 Скоріш за все, якщо ми поставимо за мету, знайти людину, яка б не любила кіно, то зазнаємо поразки. Кіно, так чи інакше, люблять всі. Хтось фантастику чи драму, хтось фільми жахів чи детективи, можливо, документальне чи науково-популярне, але загалом кіно займає значну долю нашого культурного життя.
 
 В інтернеті можна знайти так звані сайти-рейтинги для художніх фільмів (а також мультфільмів, серіалів, документальних стріок тощо), самий популярний та відомий з яких [IMDB](http://imdb.com).
@@ -19,7 +23,7 @@ output: html_notebook
 
 Перш за все нам будуть потрібні дані, з якими ми будемо працювати. На жаль, сайт [IMDB](http://imdb.com) не дає змоги отримати дані про всі фільми у вигляді якої-небудь таблиці, з якою вже було б зручно працювати. Тому дослідники вимушені використовувати різні програмні трюки, щоб зібрати дані та переформатувати їх у зручний для аналізу вигляд.
 
-На щастя, я не перший, кого зацікавило дане питання, тому я можу використати готовий до вжитку, найбільш популярний щодо кіноіндустрії датасет [IMDB 5000 Movie Dataset](https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset), остання версія якого датується 14 серпня 2016 року. Тобто останні фільми за півроку туда не війдуть, але на загальні тенденції це практично не вплине.
+На щастя, я не перший, кого зацікавило дане питання, тому я можу використати готовий до вжитку, найбільш популярний щодо кіноіндустрії, датасет [IMDB 5000 Movie Dataset](https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset), остання версія якого датується 14 серпня 2016 року. Тобто останні фільми за півроку туда не війдуть, але на загальні тенденції це практично не вплине.
 
 Отже, почнемо.
  * Clear memory
@@ -43,63 +47,19 @@ library(data.table)
 library(stringr)
 
 ```
-```{r}
-#----------------------------------------
-# GENERAL THEME
-# - we'll use this for most of our charts
-#   and build on it when we need to
-#----------------------------------------
-
-theme.porttheme <-  
-  theme(text = element_text(family = "Gill Sans", color = "#444444")) +
-  theme(plot.title = element_text(size = 24)) +
-  #theme(plot.subtitle = element_text(size = 18)) +
-  theme(axis.title = element_text(size = 14)) +
-  theme(axis.title.y = element_text(angle = 0, vjust = .5, margin = margin(r = 15))) +
-  theme(axis.text = element_text(size = 10)) +
-  theme(axis.title.x = element_text(margin = margin(t = 20))) +
-  theme(legend.title = element_blank()) 
-  
 
 
-#------------------------------------
-# THEME FOR 'WIDE' BAR CHARTS
-# - there are several bar charts that 
-#   are very wide, and need some
-#   special formatting
-#------------------------------------
-
-theme.widebar <-
-  theme.porttheme +
-  theme(plot.title = element_text(size = 30)) +
-  #theme(plot.subtitle = element_text(size = 20)) +
-  theme(legend.title = element_blank(), legend.background = element_blank()) +
-  theme(legend.text = element_text(size = 12)) +
-  theme(legend.position = c(.9,.55)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .4))
-  
-
-
-#------------------------------------
-# THEME FOR 'WIDE' BAR CHARTS
-#  - we'll use this for small multiple 
-#    charts.  these also have some
-#    special formatting requirements
-#------------------------------------
-
-theme.smallmult <- 
-  theme.porttheme +
-  theme(axis.text = element_text(size = 6)) +
-  theme(axis.text.x = element_text(angle = 90))
-```
 
 Прочитаємо датасет та подивимось на його структуру
 ```{r}
-movies = read.csv("movie_metadata.csv",stringsAsFactors = F,encoding = "UTF-8")
+movies = read.csv("movie_metadata.csv",stringsAsFactors = F,
+                  encoding = "UTF-8",na.strings=c(""," ","NA","NULL"))
 str(movies)
 
 
 ```
+
+
 
 Унікальний ключ для одного запису (рядка в таблиці) - це поле "movie_imdb_link", тобто посилання на фільм на сайті IMDB. Подивимось чи дублються записи: 
 ```{r}
@@ -115,11 +75,19 @@ uni_movies <- subset(movies, !duplicated(movies$movie_imdb_link))
 sum(duplicated(uni_movies$movie_imdb_link))
 
 ```
+Приберемо пробіли спочатку та в кінці назви фільму 
+```{r}
+uni_movies$movie_title <- str_trim(uni_movies$movie_title)
+```
 
-Подивимось TOP20 фільмів за оцінкою. При цьому використаємо оцінку, за яку проголосувало більше 1000 осіб.
 
 ```{r}
-temp <- uni_movies %>% subset(uni_movies$num_voted_users>1000) %>%  select(movie_title,imdb_score)%>% arrange(desc(imdb_score))
+summary(uni_movies$num_voted_users)
+```
+Подивимось TOP20 фільмів за оцінкою. При цьому використаємо оцінку, за яку проголосувало більше 1000 осіб.
+
+```{r, echo=FALSE, fig.height=6, fig.width=9}
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>8500) %>%  select(movie_title,imdb_score)%>% arrange(desc(imdb_score)) 
 temp <- temp[1:20,]
 
 # Add title, narrower bars, fill color, and change axis labels
@@ -127,33 +95,37 @@ temp <- temp[1:20,]
 ggplot(temp, aes(x = reorder(movie_title,imdb_score), 
     y = imdb_score, fill = imdb_score)) +
   geom_bar(stat='identity') + 
-  geom_text(aes(x = movie_title, y = 0.5, label=imdb_score),
+  geom_text(aes(x = movie_title , y = 0.5, label=imdb_score),
     hjust=0, vjust=0.55, size = 4, colour = 'red') +
   labs(x = 'movie_title') +
   coord_flip() + 
-  theme_few()
+  theme_few()+scale_colour_few()
 
 ```
+
+
+
 
 Глянемо розподіл рейтингів 
 ```{r}
 ggplot(uni_movies, aes(x=imdb_score)) +
-    geom_histogram(binwidth=0.2, colour="black", fill="white") +
+    geom_histogram(binwidth=0.2, colour="black", fill="steelblue") +
+    scale_x_continuous("imdb_score", breaks = seq(0, 9.5, by = 0.5)) +
     geom_vline(aes(xintercept=mean(imdb_score, na.rm=T)),   # Ignore NA values for mean
-               color="red", linetype="dashed", size=1)
+              color="red", linetype="dashed", size=1, show.legend = TRUE)
+     
 ```
 
 Графік кількості від року
 
 
 ```{r}
-temp <- uni_movies %>% select(title_year,imdb_score) %>% group_by(title_year) %>% 
+temp <-
+  uni_movies %>% select(title_year, imdb_score) %>% group_by(title_year) %>%
   summarise(quantity = length(title_year))
-
-ggplot(temp, aes(title_year,quantity)) +
-  geom_line(na.rm = TRUE)
-
-ggplot(temp, aes(title_year,quantity)) +
+  
+  ggplot(temp, aes(title_year, quantity)) +
+  geom_line(na.rm = TRUE) +
   geom_smooth(na.rm = TRUE)
 
 ```
@@ -161,13 +133,13 @@ ggplot(temp, aes(title_year,quantity)) +
 Графік рейтингу від року
 ```{r}
 
-temp <- uni_movies %>% select(title_year,imdb_score) %>% group_by(title_year) %>% 
+
+temp <-
+  uni_movies %>% select(title_year, imdb_score) %>% group_by(title_year) %>%
   summarise(mean_rate = mean(imdb_score))
 
-ggplot(temp, aes(title_year, mean_rate)) + 
-  geom_line(na.rm = TRUE)
-
-ggplot(temp, aes(title_year, mean_rate)) + 
+ggplot(temp, aes(title_year, mean_rate)) +
+  geom_line(na.rm = TRUE) +
   geom_smooth(na.rm = TRUE)
 
 
@@ -176,19 +148,120 @@ ggplot(temp, aes(title_year, mean_rate)) +
 Рейтинг в залежності від жанру
 ```{r}
 
-temp <- uni_movies %>% select(genres ,imdb_score)
+temp <- uni_movies %>% select(genres , imdb_score)
 
-temp$genres <- substr(temp$genres,1,
-                      ifelse(regexpr("[|]",temp$genres)>0,
-                             regexpr("[|]",temp$genres)-1,
-                             nchar(temp$genres)))
+temp$genres <- substr(temp$genres, 1,
+                      ifelse(
+                        regexpr("[|]", temp$genres) > 0,
+                        regexpr("[|]", temp$genres) - 1,
+                        nchar(temp$genres)
+                      ))
 
 
 temp <- temp %>% group_by(genres) %>%
-  summarise(mean_rate = mean(imdb_score))
+  summarise(mean_rate = round(mean(imdb_score), 1))
 
-ggplot(temp, aes(genres, mean_rate)) + 
-  geom_bar(na.rm = TRUE, stat = "identity")
 
+ggplot(temp, aes(
+  x = reorder(genres, mean_rate),
+  y = mean_rate,
+  fill = mean_rate
+)) +
+  geom_bar(stat = 'identity') +
+  geom_text(
+    aes(x = genres, y = 0.5, label = mean_rate),
+    hjust = 0,
+    vjust = 0.55,
+    size = 4,
+    colour = 'red'
+  ) +
+  labs(x = 'Genres') +
+  coord_flip() +
+  theme_few() + scale_colour_few()
+
+```
+
+Рейтинг в залежності від країни
+```{r}
+
+
+
+temp <-
+uni_movies %>% subset(uni_movies$num_voted_users > 8500) %>% select(country, imdb_score)
+temp <-
+temp %>% group_by(country) %>% summarize(appear.count = n(), mean_rate = round(mean(imdb_score), 1))
+temp <- filter(temp, appear.count > 10)
+
+ggplot(temp, aes(
+  x = reorder(country, mean_rate),
+  y = mean_rate,
+  fill = mean_rate
+)) +
+  geom_bar(stat = 'identity') +
+  geom_text(
+    aes(x = country, y = 0.5, label = mean_rate),
+    hjust = 0,
+    vjust = 0.55,
+    size = 4,
+    colour = 'red'
+  ) +
+  labs(x = 'country') +
+  coord_flip() +
+  theme_few(base_size = 10) + scale_colour_few()
+
+```
+
+
+
+```{r}
+
+uni_movies %>% na.omit() %>%
+  group_by(country) %>%
+  mutate(count.country = n()) %>%
+  subset(uni_movies$num_voted_users > 100) %>%
+  ggplot(aes(x = reorder(country, -imdb_score, median),  y = imdb_score)) +
+  stat_boxplot(fill = "steelblue", na.rm = TRUE) +
+  scale_y_continuous("imdb_score", breaks = seq(0, 9.5, by = 0.500)) +
+  labs(x = 'country') +
+  ggtitle("IMDB score vs country") +
+  theme(axis.text.x = element_text(
+  angle = 90,
+  hjust = 0,
+  vjust = 0.3
+  ))
+
+```
+
+
+```{r}
+
+temp <-
+  uni_movies %>% subset(uni_movies$num_voted_users > 8500) %>% select(director_name, imdb_score) %>%   
+  group_by(director_name) %>% summarise(avg_imdb_score =  mean(imdb_score)) %>%
+  arrange(desc(avg_imdb_score))
+  
+  temp <- temp[1:20, ]
+  
+  ggplot(temp, aes(
+  x = reorder(director_name, avg_imdb_score),
+  y = avg_imdb_score,
+  fill = avg_imdb_score
+  )) +
+  geom_bar(stat = 'identity') +
+  #scale_y_continuous(limits = c(0, 9.5))+
+   coord_cartesian(ylim=c(8, 9.0))+
+  geom_text(
+  aes(x = director_name, y = 7, label = avg_imdb_score),
+  hjust = 0,
+  vjust = 0.55,
+  size = 4,
+  colour = 'red'
+  ) +
+  labs(x = 'director_name') +
+  coord_flip() 
+  
+ 
+
+  
 ```
 
