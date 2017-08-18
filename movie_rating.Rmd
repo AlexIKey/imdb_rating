@@ -1,42 +1,96 @@
 ---
-title: "IMDB датасет"
-output: 
-  html_notebook: 
-    fig_height: 6
-    fig_width: 9
+Category: R
+Date: 2017-06-30 10:20
+Slug: IMDB_dataset
+Status: published
+Tags: imdb, vizualization, R
+Title: IMDB датасет
+fontsize: 8pt
+output:
+  md_document: default
+  html_notebook: default
 ---
+![](./movie_rating_files/1-Start picture.png)
+<style type="text/css">
 
-![](figures/img.png)
-Скоріш за все, якщо ми поставимо за мету, знайти людину, яка б не любила кіно, то зазнаємо поразки. Кіно, так чи інакше, люблять всі. Хтось фантастику чи драму, хтось фільми жахів чи детективи, можливо, документальне чи науково-популярне, але загалом кіно займає значну долю нашого культурного життя.
+body{ /* Normal  */
+      font-size: 12px;
+  }
+th {
+  font-size: 13px;
+  font-weight: normal;
+  background: #b9c9fe;
+  border-top: 4px solid #aabcfe;
+  border-bottom: 1px solid #fff;
+  color: #039;
+  padding: 8px;
+}
+td {
+  background: #e8edff;
+  border-bottom: 1px solid #fff;
+  color: #669;
+  border-top: 1px solid transparent;
+  padding: 8px;
+}
+tr:hover td {background: #ccddff;}
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: DarkBlue;
+}
+h2 { /* Header 2 */
+    font-size: 22px;
+  color: DarkBlue;
+}
+h3 { /* Header 3 */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+}
+code.r{ /* Code block */
+    font-size: 12px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 14px;
+}
+</style>
 
-В інтернеті можна знайти так звані сайти-рейтинги для художніх фільмів (а також мультфільмів, серіалів, документальних стріок тощо), самий популярний та відомий з яких [IMDB](http://imdb.com).
+<br>
+  Скоріш за все, якщо ми поставимо за мету, знайти людину, яка б не любила кіно, то зазнаємо поразки. Кіно, так чи інакше, люблять всі. Хтось фантастику чи драму, хтось фільми жахів чи детективи, можливо, документальне чи науково-популярне, але загалом кіно займає значну долю нашого культурного життя.
+
+В інтернеті можна знайти сайти-рейтинги для художніх фільмів (а також мультфільмів, серіалів, документальних стріок тощо), самий популярний та відомий з яких [imdb.com](http://imdb.com).
 
 Із менш популярних можна назвати:
-[Rotten Tomatoes](http://www.rottentomatoes.com/)
-[Movies.com](http://www.movies.com/)
-[Movies.yahoo](https://www.yahoo.com/movies/)
-[Allmovie](http://www.allmovie.com/)
-[КиноПоиск](https://www.kinopoisk.ru/)
 
-На такого роду сайтах ми можемо знайти багато цікавої інформації про фільм, починаючи від короткого змісту сюжету до фінансового успіху стрічки. Але якщо ми візьмемо дані про сотні чи навіть тисячі фільмів, чи зможемо ми виявити та узагальнити основні тенденціі кіноіндустрії? Давайте спробуємо.
+  [Rotten Tomatoes](http://www.rottentomatoes.com/)  
+  
+  [Movies.com](http://www.movies.com/)
+  
+  [Movies.yahoo](https://www.yahoo.com/movies/)
+  
+  [Allmovie](http://www.allmovie.com/)
+  
 
 
-Перш за все нам будуть потрібні дані, з якими ми будемо працювати. На жаль, сайт [IMDB](http://imdb.com) не дає змоги отримати дані про всі фільми у вигляді якої-небудь таблиці, з якою вже було б зручно працювати. Тому дослідники вимушені використовувати різні програмні трюки, щоб зібрати дані та переформатувати їх у зручний для аналізу вигляд.
+  На такого роду сайтах ми можемо знайти багато цікавої інформації про фільм, починаючи від короткого змісту сюжету до фінансового успіху стрічки. Але якщо ми візьмемо дані про сотні чи навіть тисячі фільмів, чи зможемо ми виявити та узагальнити основні тенденціі кіноіндустрії? Давайте спробуємо.
 
-На щастя, я не перший, кого зацікавило дане питання, тому я можу використати готовий до вжитку, найбільш популярний щодо кіноіндустрії, датасет [IMDB 5000 Movie Dataset](https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset), остання версія якого датується 14 серпня 2016 року. Тобто останні фільми за півроку туда не війдуть, але на загальні тенденції це практично не вплине.
 
-Отже, почнемо.
- * Clear memory
-```{r}
-# a) Load libraries
-#Setup
+  Перш за все нам будуть потрібні дані, з якими ми будемо працювати. На жаль, сайт [IMDB](http://imdb.com) не дає змоги отримати дані про всі фільми у вигляді якої-небудь таблиці, з якою вже було б зручно працювати. Тому дослідники вимушені використовувати різні програмні трюки, щоб зібрати дані та переформатувати їх у зручний для аналізу вигляд.
+
+  Оскільки я не перший, кого зацікавило дане питання, то я можу використати готовий до вжитку, найбільш популярний щодо кіноіндустрії, датасет [IMDB 5000 Movie Dataset](https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset), остання версія якого датується 14 серпня 2016 року. Тобто останні фільми з серпня 2016 туда не ввійдуть, але на загальні тенденції це практично не вплине.
+
+  Отже, почнемо.
+  
+## Що всередині?
+
+```{r echo=FALSE, include=FALSE}
+#Clear memory
 rm(list = ls(all = TRUE)) 
 gc(reset=TRUE)
-set.seed(1234) #From random.org
 
-```
-
-```{r}
 #load libraries
 library(dplyr)
 library(tidyr)
@@ -48,46 +102,71 @@ library(stringr)
 
 ```
 
-
-
-Прочитаємо датасет та подивимось на його структуру
+Прочитаємо датасет та подивимось на його структуру:
 ```{r}
 movies = read.csv("movie_metadata.csv",stringsAsFactors = F,
                   encoding = "UTF-8",na.strings=c(""," ","NA","NULL"))
 str(movies)
-
-
 ```
 
+  З назви полів легко зрозуміти їх сутність - кольоровий чи чорнобілий фільм, прізвище режисера, кількість критичних оглядів, тривалість фільму, актори та інше.
 
-
-Унікальний ключ для одного запису (рядка в таблиці) - це поле "movie_imdb_link", тобто посилання на фільм на сайті IMDB. Подивимось чи дублються записи: 
+  Унікальний ключ для одного запису (рядка в таблиці) - це поле "movie_imdb_link", тобто посилання на фільм на сайті IMDB, воно має бути унікальне для кожної стрічки. Подивимось чи дублються записи: 
 ```{r}
 sum(duplicated(movies$movie_imdb_link))
-#http://www.imdb.com/title/tt0092337/?ref_=fn_tt_tt_1
 
 ```
-
-Так,є 124 дублікатів, приберемо їх.
-
+  
+  Так, є 124 дублікатів, приберемо їх, а також приберемо непотрібні пробіли на початку та в кінці назви фільму 
 ```{r}
 uni_movies <- subset(movies, !duplicated(movies$movie_imdb_link))
-sum(duplicated(uni_movies$movie_imdb_link))
-
-```
-Приберемо пробіли спочатку та в кінці назви фільму 
-```{r}
 uni_movies$movie_title <- str_trim(uni_movies$movie_title)
+
 ```
+  
 
-
+  Перед тим, як починати шукати закономірності, давайте подивимось розподіл голосів для фільмів:
 ```{r}
 summary(uni_movies$num_voted_users)
 ```
-Подивимось TOP20 фільмів за оцінкою. При цьому використаємо оцінку, за яку проголосувало більше 1000 осіб.
 
+  Як бачимо, мінімальна кількість голосів - це 5, середня по вибірці це 82 620, медіана,тобто кількість, яка найбільш часто зустрічається у вибірці, це 33 160 голосів.
+
+### Яка з цього користь?
+
+  Саме просте, для чого можна використати ці дані - це отримати перелік топових стрічок. Подивимось TOP20 фільмів за оцінкою відвідувачів сайту. 
 ```{r, echo=FALSE, fig.height=6, fig.width=9}
-temp <- uni_movies %>% subset(uni_movies$num_voted_users>8500) %>%  select(movie_title,imdb_score)%>% arrange(desc(imdb_score)) 
+temp <- uni_movies %>%  select(movie_title,imdb_score)%>% arrange(desc(imdb_score)) 
+temp <- temp[1:20,]
+
+# Add title, narrower bars, fill color, and change axis labels
+#Bar Chart with 2 variables
+ggplot(temp, aes(x = reorder(movie_title,imdb_score), 
+    y = imdb_score, fill = imdb_score)) +
+  geom_bar(stat='identity') + 
+  geom_text(aes(x = movie_title , y = 0.5, label=imdb_score),
+    hjust=0, vjust=0.55, size = 4, colour = 'red') +
+  labs(x = 'movie_title') +
+  coord_flip() + 
+  theme_few()+scale_colour_few()
+
+```
+
+На перший погляд, все логічно, проте що це за лідер рейтингу 'Towering Inferno' ? Особисто я про цей фільм ніколи не чув...
+```{r}
+temp <-uni_movies %>% subset(uni_movies$movie_title == 'Towering Inferno')
+str(temp)
+```
+Так, дійсно, це комедія, рейтинг 9.5, оцінили 10 користувачів, знято було в Канаді, рік випуску в датасеті невідомий. Знайдемо його на imdb.com: [Towering Inferno 
+](http://www.imdb.com/title/tt0691996/?ref_=fn_tt_tt_1)
+
+![](./movie_rating_files/tt0691996.jpg)
+
+<br>
+  Це комедійний серіал, знятий в 1981-1983 роках. На сьогодні на imdb.com за цей фільм проголосували 14 користувачів та його рейтинг впав до 9,4. Можливо, це дійсно хороший фільм, але він мало відомий загалу кіноглядачів. На мій погляд, такі випадки викривляють ТОР20, тому  потрібно встановити мінімальну кількість голосів на сайті, після якої фільм попадає до ТОР20. В якості межі по мінімальної кількості голосів поставимо медіану розподілу, тобто 33 160 голосів за фільм.
+  
+```{r, fig.height=6, fig.width=10}
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160) %>%  select(movie_title,imdb_score)%>% arrange(desc(imdb_score)) 
 temp <- temp[1:20,]
 
 # Add title, narrower bars, fill color, and change axis labels
@@ -104,22 +183,21 @@ ggplot(temp, aes(x = reorder(movie_title,imdb_score),
 ```
 
 
-
-
-Глянемо розподіл рейтингів 
-```{r}
+## Яким чином розподіляються голоси та який середній бал фільмів по даним в цілому:
+```{r, fig.height=6, fig.width=9}
+summary(uni_movies$imdb_score)
 ggplot(uni_movies, aes(x=imdb_score)) +
     geom_histogram(binwidth=0.2, colour="black", fill="steelblue") +
     scale_x_continuous("imdb_score", breaks = seq(0, 9.5, by = 0.5)) +
     geom_vline(aes(xintercept=mean(imdb_score, na.rm=T)),   # Ignore NA values for mean
               color="red", linetype="dashed", size=1, show.legend = TRUE)
-     
 ```
+  
+  Як бачимо, форма розподілу наближений до форми "дзвону", отже розподіл наближається до нормального. Червоний пунктир показує середнє значення для рейтингу по всій вибірці, яке дорівнює 6.438.
 
-Графік кількості від року
 
-
-```{r}
+## Залежність кількості знятих фільмів від року їх випуску.
+```{r,fig.height=6, fig.width=9}
 temp <-
   uni_movies %>% select(title_year, imdb_score) %>% group_by(title_year) %>%
   summarise(quantity = length(title_year))
@@ -129,11 +207,12 @@ temp <-
   geom_smooth(na.rm = TRUE)
 
 ```
+  
+  Як ми всі, напевно, здогадувались, кількість стрічок зростає з кожним роком (Падіння графіку за останній рік лише показує, що дані було взято до серпня 2016). 
 
-Графік рейтингу від року
-```{r}
 
-
+## Залежність рейтингу від року:
+```{r, fig.height=6, fig.width=9}
 temp <-
   uni_movies %>% select(title_year, imdb_score) %>% group_by(title_year) %>%
   summarise(mean_rate = mean(imdb_score))
@@ -145,11 +224,34 @@ ggplot(temp, aes(title_year, mean_rate)) +
 
 ```
 
-Рейтинг в залежності від жанру
-```{r}
+Тут спостерігається інша тенденція - піковий балл оцінки фільмів належить до фільмів кінця 50-х  - початок 60-х років. Далі, рейтинг фільмів плавно знижується та наближається до середнього. Можна зробити і наступний висновок: оскільки загальна кількість знятих фільмів щороку збільшується, але кількість гарних стрічок (можливо і не менша ніж у 50-х чи 60-х)  "розмивається" загальною кількістю фільмів і тому середній бал падає.
 
-temp <- uni_movies %>% select(genres , imdb_score)
+Ще одна цікава залежність - рейтинг жанру, в якому було знято фільм.
 
+## ТОП найбільш популярних жанрів у кіно:
+```{r, fig.height=6, fig.width=9}
+# Subset the genres
+genre = movies['genres']
+
+# Count how many times each genre is in the dataset
+genre = data.frame(table(genre))
+
+# Sort the dataset by the frequency each genre appears
+genre = genre[order(genre$Freq,decreasing=TRUE),]
+
+# Plot the top 20 genres with the most movies
+ggplot(genre[1:20,], aes(x=reorder(factor(genre), Freq), y=Freq, fill=Freq)) + 
+  geom_bar(stat = "identity") + 
+  xlab("Genre") + 
+  ylab("Number of Movies") + 
+  ggtitle("Top 20 genres with the most movies") + 
+  coord_flip()+theme_few() + scale_colour_few()
+```
+
+Тут також потрібно зважати на кількість голосів, тому встановим  додатковий фільтр для попадання в рейтинг у вигляді "кількість голосів більше або дорівнює 33 160", а також відокремимо жанри для стрічок, що мають декілька жанрових позначок:
+
+```{r, fig.height=6, fig.width=9}
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160) %>% select(genres , imdb_score)
 temp$genres <- substr(temp$genres, 1,
                       ifelse(
                         regexpr("[|]", temp$genres) > 0,
@@ -157,10 +259,8 @@ temp$genres <- substr(temp$genres, 1,
                         nchar(temp$genres)
                       ))
 
-
 temp <- temp %>% group_by(genres) %>%
   summarise(mean_rate = round(mean(imdb_score), 1))
-
 
 ggplot(temp, aes(
   x = reorder(genres, mean_rate),
@@ -177,17 +277,17 @@ ggplot(temp, aes(
   ) +
   labs(x = 'Genres') +
   coord_flip() +
+  ggtitle("Top genres with the most movies") + 
   theme_few() + scale_colour_few()
-
 ```
 
-Рейтинг в залежності від країни
-```{r}
+Як бачимо, найбільш популярний жанр фільмів - це вестерн, за ним йде трилер, потім сімейні та біографічні фільми.
 
 
-
+## ТОП країн, чиї фільми оцінюються вищими балами:
+```{r, fig.height=6, fig.width=9}
 temp <-
-uni_movies %>% subset(uni_movies$num_voted_users > 8500) %>% select(country, imdb_score)
+uni_movies %>% subset(uni_movies$num_voted_users >= 33160) %>% select(country, imdb_score)
 temp <-
 temp %>% group_by(country) %>% summarize(appear.count = n(), mean_rate = round(mean(imdb_score), 1))
 temp <- filter(temp, appear.count > 10)
@@ -206,52 +306,33 @@ ggplot(temp, aes(
     colour = 'red'
   ) +
   labs(x = 'country') +
+  ggtitle("Top countries VS IMDB score with the most movies") + 
   coord_flip() +
   theme_few(base_size = 10) + scale_colour_few()
 
 ```
 
+Як не дивно, але перша трійка - це не США, а Іспанія, Великобританія та Франція. Пізніше ми більш детально розглянемо, які фільми від цих країн війшли в ТОР.
 
+Ще один цікавий рейтинг: 
 
+## Рейтинг режисерів в залежності від оцінки їх фільмів.
 ```{r}
-
-uni_movies %>% na.omit() %>%
-  group_by(country) %>%
-  mutate(count.country = n()) %>%
-  subset(uni_movies$num_voted_users > 100) %>%
-  ggplot(aes(x = reorder(country, -imdb_score, median),  y = imdb_score)) +
-  stat_boxplot(fill = "steelblue", na.rm = TRUE) +
-  scale_y_continuous("imdb_score", breaks = seq(0, 9.5, by = 0.500)) +
-  labs(x = 'country') +
-  ggtitle("IMDB score vs country") +
-  theme(axis.text.x = element_text(
-  angle = 90,
-  hjust = 0,
-  vjust = 0.3
-  ))
-
-```
-
-
-```{r}
-
 temp <-
-  uni_movies %>% subset(uni_movies$num_voted_users > 8500) %>% select(director_name, imdb_score) %>%   
-  group_by(director_name) %>% summarise(avg_imdb_score =  mean(imdb_score)) %>%
-  arrange(desc(avg_imdb_score))
+  uni_movies %>% subset(uni_movies$num_voted_users > 33160) %>% select(director_name, imdb_score) %>%   group_by(director_name) %>% summarise(mean_rate =  round(mean(imdb_score),1)) %>%
+  arrange(desc(mean_rate))
   
   temp <- temp[1:20, ]
   
   ggplot(temp, aes(
-  x = reorder(director_name, avg_imdb_score),
-  y = avg_imdb_score,
-  fill = avg_imdb_score
+  x = reorder(director_name, mean_rate),
+  y = mean_rate,
+  fill = mean_rate
   )) +
   geom_bar(stat = 'identity') +
-  #scale_y_continuous(limits = c(0, 9.5))+
-   coord_cartesian(ylim=c(8, 9.0))+
+  coord_cartesian(ylim=c(8, 9.0))+
   geom_text(
-  aes(x = director_name, y = 7, label = avg_imdb_score),
+  aes(x = director_name, y = 7, label = mean_rate),
   hjust = 0,
   vjust = 0.55,
   size = 4,
@@ -259,9 +340,147 @@ temp <-
   ) +
   labs(x = 'director_name') +
   coord_flip() 
-  
- 
 
-  
 ```
+
+Якщо поглиблюватись у деталі, то IMDB датасет дає змогу проаналізувати ще багато цікавих та неявних залежностей у світі кіно. Можливо, якось я ще раз повернусь до аналізу цього набору даних. А поки що хочу завершити пост корисними рекомендаціями. У наш час дуже багато інформації, яка інколи буквально затоплює нас, і основна мета, часто, не знайти інформацію, а обмежити її. Зрозуміло, що ми не можемо переглянути всі стрічки у світі, проте нам не хотілось би пропустити найкращі.  
+
+<br>
+
+![](./movie_rating_files/Red&Blue.jpeg)
+
+<br>
+Оскільки "Everything begins with choice" (Все починається з вибору), то сподіваюсь, у вас тепер буде вибір, що дивитись і моя стаття цьому допоможе. Тому я закінчу просто переліками TOP10 фільмів на базі IMDB датасету:
+
+### ТОП10 фільмів всіх часів:
+```{r}
+
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160) %>%  select(movie_title,director_name, imdb_score,movie_imdb_link)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+
+knitr::kable(temp)
+```
+
+Пройдемось по жанрах.
+
+###ТОП10 вестернів:
+```{r}
+
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160 & grepl('Western', uni_movies$genres)) %>%  select(movie_title,director_name,imdb_score,movie_imdb_link)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+knitr::kable(temp)
+```
+
+### ТОП10 трилерів:
+```{r}
+
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160 & grepl('Thriller', uni_movies$genres)) %>%  select(movie_title,director_name,imdb_score,movie_imdb_link)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+knitr::kable(temp)
+```
+
+### ТОП10 "сімейних" стрічок:
+```{r}
+
+
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160 & grepl('Family', uni_movies$genres)) %>%  select(movie_title,director_name,imdb_score,movie_imdb_link)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+knitr::kable(temp)
+```
+
+### ТОП10 комедій:
+```{r}
+
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160 & grepl('Comedy', uni_movies$genres)) %>%  select(movie_title,director_name,imdb_score,movie_imdb_link)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+knitr::kable(temp)
+```
+
+### ТОП10 фільмів жахів:
+```{r}
+
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160 & grepl('Horror', uni_movies$genres)) %>%  select(movie_title,director_name,imdb_score,movie_imdb_link)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+knitr::kable(temp)
+```
+
+
+### ТОП10 "кримінальних" фільмів:
+```{r}
+
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160 & grepl('Crime', uni_movies$genres)) %>%  select(movie_title,director_name,imdb_score,movie_imdb_link)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+knitr::kable(temp)
+```
+
+### ТОП10 науково-фантастичних фільмів:
+```{r}
+
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160 & grepl('Sci-Fi', uni_movies$genres)) %>%  select(movie_title,director_name,imdb_score,movie_imdb_link)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+knitr::kable(temp)
+```
+
+
+І наостанок, ТОП фільмів по країнах:
+
+### ТОП10 іспанських стрічок:
+```{r}
+
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160 & grepl('Spain', uni_movies$country)) %>%  select(movie_title,director_name,imdb_score,movie_imdb_link,genres)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+knitr::kable(temp)
+```
+
+
+### ТОП10 стрічок Великобританії:
+```{r}
+
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160 & grepl('UK', uni_movies$country)) %>%  select(movie_title,director_name,imdb_score,movie_imdb_link,genres)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+knitr::kable(temp)
+```
+
+### ТОП10 французських стрічок:
+```{r}
+library(kableExtra)
+temp <- uni_movies %>% subset(uni_movies$num_voted_users>=33160 & grepl('France', uni_movies$country)) %>%  select(movie_title,director_name,imdb_score,movie_imdb_link,genres)%>% arrange(desc(imdb_score))  
+
+temp <- temp[1:10,]
+temp$movie_imdb_link <- paste0(" [Подивитись на imdb.com](", temp$movie_imdb_link ,")")
+
+knitr::kable(temp, format = "markdown",padding = 2,full_width=TRUE, font_size=8) 
+```
+
+
 
